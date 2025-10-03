@@ -1,127 +1,127 @@
-import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 
 
+#завдання 1
 
-# завдання 1
-
-data = {
-    "Назва": ["Дюна", "Атлас розправляє плечі", "Гаррі Поттер",
-              "Володар перснів", "1984", "Автостопом по галактиці"],
-    "Автор": ["Френк Герберт", "Айн Ренд", "Джоан Роулінг",
-              "Дж. Р. Р. Толкін", "Джордж Орвелл", "Дуглас Адамс"],
-    "Рік видання": [1965, 1957, 1997, 1954, 1949, 1979],
-    "Ціна": [350, 480, 400, 520, 290, 310]
-}
-
-df = pd.DataFrame(data)
-
-print("DataFrame:")
-print(df)
-print("-" * 30)
-
-average_price = df["Ціна"].mean()
-print(f"Середня ціна книг: {average_price:.2f} грн")
-print("-" * 30)
-
-r_books = df[df["Рік видання"] > 2015]
-print("Книги, видані після 2015 року:")
-if not r_books.empty:
-    print(r_books)
-else:
-    print("Немає книг після 2015 року")
-print("-" * 30)
-
-sorted_data = df.sort_values(by="Ціна", ascending=True)
-print("")
-print(sorted_data)
-
-
+# months = ["Сiч", "Лют", "Бер", "Квіт", "Тр", "Чер", "Лип", "Сер", "Вер", "Жов", "Лис", "Гр"]
+# plan = np.array([100, 120, 150, 140, 170, 180, 200, 195, 230, 150, 150, 180])
+# fact = np.array([95, 125, 145, 160, 165, 190, 210, 160, 215, 180, 110, 200])
+#
+# plt.figure(figsize=(10, 6))
+#
+# plt.plot(months, plan, label="План", marker='o', linestyle='--', color='blue')
+# plt.plot(months, fact, label="Факт", marker='x', linestyle='-', color='green')
+#
+# plt.xlabel("\nМісяць")
+# plt.ylabel("Сума продажів у Тисячах грн\n")
+# plt.title("Графік планових та фактичних продажів")
+#
+# plt.grid(True, linestyle=':', alpha=0.6)
+# plt.legend()
+#
+# plt.show()
 
 
 
 #завдання 2
 
-# df = pd.read_csv('orders.csv')
+# np.random.seed(42)
+# ages = np.random.randint(10, 90, 100)
 #
-# print("Перші 10 рядків даних:")
-# print(df.head(10))
-# print("\n" + "=" * 50 + "\n")
+# plt.figure(figsize=(10, 6))
+# plt.hist(ages, bins=10, edgecolor='black', alpha=0.7, color='lightblue')
 #
-# orders_by_client = df['Клієнт'].value_counts()
-# print("Кількість замовлень кожного клієнта:")
-# print(orders_by_client)
-# print("\n" + "=" * 50 + "\n")
+# av_age = np.mean(ages)
+# plt.axvline(av_age, color='red', linestyle='dashed', linewidth=2, label=f'Середній вік: {av_age:.2f}')
 #
-# max_sum = df['Сума'].max()
-# min_sum = df['Сума'].min()
-# print(f"Максимальна сума замовлення: {max_sum}")
-# print(f"Мінімальна сума замовлення: {min_sum}")
-# print("\n" + "=" * 50 + "\n")
+# plt.xlabel("Вік")
+# plt.ylabel("Кількість осіб")
+# plt.title("Розподіл віку 100 осіб")
 #
-# total_sum = df['Сума'].sum()
-# print(f"Загальна сума всіх замовлень: {total_sum}")
+# plt.legend()
+# plt.grid(axis='y', linestyle=':', alpha=0.7)
+#
+# plt.show()
 
 
 #завдання 3
 
-# data = {
-#     "Продукт": ["Мигдаль", "Яблуко", "Куряче філе", "Рис", "Вівсянка",
-#                 "Авокадо", "Банан", "Стейк", "Броколі", "Сир твердий"],
-#     "Категорія": ["Горіхи", "Фрукти", "М'ясо", "Зернові", "Зернові",
-#                   "Фрукти", "Фрукти", "М'ясо", "Овочі", "Молочні"],
-#     "Калорії": [576, 52, 165, 130, 389,
-#                 160, 89, 271, 55, 402],
-#     "Білки": [21, 0.3, 31, 2, 16,
-#               2, 1, 26, 3, 25]
-# }
+# np.random.seed(42)
 #
-# df = pd.DataFrame(data)
+# group_a = np.random.normal(loc=90, scale=5, size=50)
+# group_b = np.random.normal(loc=70, scale=12, size=50)
+# group_c = np.random.normal(loc=80, scale=8, size=50)
 #
-# print("DataFrame:")
-# print(df)
-# print("-" * 50)
+# data = [group_a, group_b, group_c]
+# group_labels = ['Група А', 'Група Б', 'Група В']
 #
-# products = df[df["Калорії"] > 300]
-# print("Продукти з калорійністю вище 300:")
-# print(products)
-# print("-" * 50)
+# plt.figure(figsize=(10, 7))
 #
-# protein = df.groupby("Категорія")["Білки"].mean()
-# print("Середня кількість білків за категоріями:")
-# print(protein)
-# print("-" * 50)
+# plt.boxplot(data, tick_labels=group_labels, patch_artist=True, medianprops={'color': 'red'})
 #
-# sorted_data = df.sort_values(by="Калорії", ascending=False)
-# print(sorted_data)
+# plt.xlabel("\nГрупа студентів")
+# plt.ylabel("Оцінка іспиту")
+# plt.title("Порівняння розподілу оцінок іспиту між групами")
+#
+# plt.ylim(50, 105)
+# plt.grid(axis='y', linestyle=':', alpha=0.7)
+#
+# plt.show()
 
 
 
 
 #завдання 4
 
-# data = {
-#     "Ім'я": ["Іван", "Микита", "Андрій", "Вікторія", "Микита", "Іван", "Андрій", "Катерина", "Катерина"],
-#     "Проект": ["Проєкт А", "Проєкт Б", "Проєкт В", "Проєкт Б", "Проєкт А", "Проєкт В", "Проєкт А", "Проєкт Б", "Проєкт В"],
-#     "Години": [15, 20, 10, 25, 30, 10, 5, 20, 15]
-# }
+# dates = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"]
+# temperature = [20, 22, 25, 23, 21, 18, 19]
+# w = [10, 15, 20, 10, 40, 30, 50] #вологість
 #
-# df = pd.DataFrame(data)
+# fig, l1 = plt.subplots(figsize=(10, 6))
 #
-# print("DataFrame:")
-# print(df)
-# print("-" * 50)
+# l1.set_ylabel('Температура (°C)', color='red')
+# l1.plot(dates, temperature, color='red', label='Температура')
+# l1.tick_params(axis='y', labelcolor='red')
 #
-# employee_hours = df.groupby("Ім'я")["Години"].sum()
-# print("Загальна кількість годин за кожним співробітником:")
-# print(employee_hours)
-# print("-" * 50)
+# l2 = l1.twinx()
+# l2.set_ylabel('Вологість (%)', color='blue')
+# l2.plot(dates, w, color='blue', linestyle='--', label='Вологість')
+# l2.tick_params(axis='y', labelcolor='blue')
 #
-# project_hours = df.groupby("Проект")["Години"].sum()
-# print("Загальна кількість годин за кожним проектом:")
-# print(project_hours)
-# print("-" * 50)
+# l1.set_xlabel("День тижня")
+# plt.title("Денні значення температури та вологості")
+# l1.tick_params(axis='x', rotation=30)
 #
-# employee_name = employee_hours.idxmax()
-# employee_h = employee_hours.max()
-# print(f"Співробітник, який витратив найбільше годин: {employee_name}")
-# print(f"Кількість годин: {employee_h}")
+# lines = l1.get_lines() + l2.get_lines()
+# labels = [l.get_label() for l in lines]
+# l1.legend(lines, labels, loc='upper right')
+#
+# fig.tight_layout()
+# plt.show()
+
+
+
+#завдання 5
+
+hours = np.arange(24)
+
+np.random.seed(42)
+base_load = np.sin(hours / 24 * 2 * np.pi - np.pi / 2) * 50 + 70
+load_data = base_load + np.random.normal(0, 5, 24)
+load_data = np.maximum(load_data, 20)
+
+plt.figure(figsize=(12, 6))
+plt.plot(hours, load_data, color='darkblue', linewidth=2, label="Навантаження сервера")
+plt.fill_between(hours, load_data, color='lightblue', alpha=0.5)
+
+plt.xlabel("Година доби (0-23)")
+plt.ylabel("Навантаження (умовні одиниці)")
+plt.title("Погодинне навантаження сервера за добу")
+
+plt.grid(True, linestyle=':', alpha=0.7)
+plt.xticks(hours[::2])
+plt.xlim(0, 23)
+
+plt.legend(loc='upper left')
+plt.show()
