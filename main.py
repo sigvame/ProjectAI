@@ -1,127 +1,120 @@
-import pandas as pd
+import torch
+import time
+import os
+from diffusers import StableDiffusionPipeline
+from PIL import Image
 
-
-
-# завдання 1
-
-data = {
-    "Назва": ["Дюна", "Атлас розправляє плечі", "Гаррі Поттер",
-              "Володар перснів", "1984", "Автостопом по галактиці"],
-    "Автор": ["Френк Герберт", "Айн Ренд", "Джоан Роулінг",
-              "Дж. Р. Р. Толкін", "Джордж Орвелл", "Дуглас Адамс"],
-    "Рік видання": [1965, 1957, 1997, 1954, 1949, 1979],
-    "Ціна": [350, 480, 400, 520, 290, 310]
+MODEL_ID = "runwayml/stable-diffusion-v1-5"
+OUTPUT_DIR = "sd_lab_results"
+PROMPTS = {
+    "steps_ukr": "Гірський пейзаж з водоспадом на заході сонця, деталізований",
+    "steps_eng": "Mountain landscape with waterfall at sunset, highly detailed",
+    "guidance_ukr": "Кіт у космічному скафандрі на Місяці, реалістичний",
+    "guidance_eng": "Cat in space suit on the Moon, photorealistic",
+    "size_ukr": "Старовинний замок у тумані, акварель",
+    "size_eng": "Ancient castle in the fog, watercolor"
 }
 
-df = pd.DataFrame(data)
 
-print("DataFrame:")
-print(df)
-print("-" * 30)
+def load_model():
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    dtype = torch.float16 if device == "cuda" else torch.float32
 
-average_price = df["Ціна"].mean()
-print(f"Середня ціна книг: {average_price:.2f} грн")
-print("-" * 30)
+    try:
+        pipe = StableDiffusionPipeline.from_pretrained(
+            MODEL_ID,
+            torch_dtype=dtype
+        )
+        pipe = pipe.to(device)
+    except Exception as e:
+        print(f"Помилка завантаження: {e}")
+        return None
 
-r_books = df[df["Рік видання"] > 2015]
-print("Книги, видані після 2015 року:")
-if not r_books.empty:
-    print(r_books)
-else:
-    print("Немає книг після 2015 року")
-print("-" * 30)
-
-sorted_data = df.sort_values(by="Ціна", ascending=True)
-print("")
-print(sorted_data)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    return pipe
 
 
+def generate_and_time(pipe, prompt: str, steps: int, guidance: float, width: int, height: int, filename: str) -> tuple[
+    float, str]:
+    if pipe is None:
+        return 0.0, ""
+
+    start_time = time.time()
+
+    result = pipe(
+        prompt=prompt,
+        num_inference_steps=steps,
+        guidance_scale=guidance,
+        width=width,
+        height=height
+    )
+    image = result.images[0]
+
+    end_time = time.time()
+    generation_time = end_time - start_time
+
+    save_path = os.path.join(OUTPUT_DIR, filename)
+    image.save(save_path)
+
+    return generation_time, save_path
 
 
+# def download_model():
+#     device = "cuda" if torch.cuda.is_available() else "cpu"
+#     dtype = torch.float16 if device == "cuda" else torch.float32
+#     StableDiffusionPipeline.from_pretrained(MODEL_ID, torch_dtype=dtype)
 
-#завдання 2
+if __name__ == "__main__":
 
-# df = pd.read_csv('orders.csv')
-#
-# print("Перші 10 рядків даних:")
-# print(df.head(10))
-# print("\n" + "=" * 50 + "\n")
-#
-# orders_by_client = df['Клієнт'].value_counts()
-# print("Кількість замовлень кожного клієнта:")
-# print(orders_by_client)
-# print("\n" + "=" * 50 + "\n")
-#
-# max_sum = df['Сума'].max()
-# min_sum = df['Сума'].min()
-# print(f"Максимальна сума замовлення: {max_sum}")
-# print(f"Мінімальна сума замовлення: {min_sum}")
-# print("\n" + "=" * 50 + "\n")
-#
-# total_sum = df['Сума'].sum()
-# print(f"Загальна сума всіх замовлень: {total_sum}")
+    # download_model()
 
+    pipe = load_model()
 
-#завдання 3
+    if pipe is None:
+        exit()
 
-# data = {
-#     "Продукт": ["Мигдаль", "Яблуко", "Куряче філе", "Рис", "Вівсянка",
-#                 "Авокадо", "Банан", "Стейк", "Броколі", "Сир твердий"],
-#     "Категорія": ["Горіхи", "Фрукти", "М'ясо", "Зернові", "Зернові",
-#                   "Фрукти", "Фрукти", "М'ясо", "Овочі", "Молочні"],
-#     "Калорії": [576, 52, 165, 130, 389,
-#                 160, 89, 271, 55, 402],
-#     "Білки": [21, 0.3, 31, 2, 16,
-#               2, 1, 26, 3, 25]
-# }
-#
-# df = pd.DataFrame(data)
-#
-# print("DataFrame:")
-# print(df)
-# print("-" * 50)
-#
-# products = df[df["Калорії"] > 300]
-# print("Продукти з калорійністю вище 300:")
-# print(products)
-# print("-" * 50)
-#
-# protein = df.groupby("Категорія")["Білки"].mean()
-# print("Середня кількість білків за категоріями:")
-# print(protein)
-# print("-" * 50)
-#
-# sorted_data = df.sort_values(by="Калорії", ascending=False)
-# print(sorted_data)
+    steps_values = [10, 20, 30, 50]
+    fixed_guidance = 7.5
+    fixed_width = 512
+    fixed_height = 512
 
+    print("\n--- Вплив кроків")
 
+    for steps in steps_values:
+        time_ukr, path_ukr = generate_and_time(
+            pipe, PROMPTS["steps_ukr"], steps, fixed_guidance, fixed_width, fixed_height, f"T1_S{steps}_ukr.png"
+        )
+        time_eng, path_eng = generate_and_time(
+            pipe, PROMPTS["steps_eng"], steps, fixed_guidance, fixed_width, fixed_height, f"T1_S{steps}_eng.png"
+        )
+        print(f"Кроки: {steps} | Час (УКР): {time_ukr:.2f}с | Час (АНГЛ): {time_eng:.2f}с")
 
+    guidance_values = [3.0, 7.5, 12.0, 15.0]
+    fixed_steps = 30
 
-#завдання 4
+    print("\n--- Вплив guidance_scale ---")
 
-# data = {
-#     "Ім'я": ["Іван", "Микита", "Андрій", "Вікторія", "Микита", "Іван", "Андрій", "Катерина", "Катерина"],
-#     "Проект": ["Проєкт А", "Проєкт Б", "Проєкт В", "Проєкт Б", "Проєкт А", "Проєкт В", "Проєкт А", "Проєкт Б", "Проєкт В"],
-#     "Години": [15, 20, 10, 25, 30, 10, 5, 20, 15]
-# }
-#
-# df = pd.DataFrame(data)
-#
-# print("DataFrame:")
-# print(df)
-# print("-" * 50)
-#
-# employee_hours = df.groupby("Ім'я")["Години"].sum()
-# print("Загальна кількість годин за кожним співробітником:")
-# print(employee_hours)
-# print("-" * 50)
-#
-# project_hours = df.groupby("Проект")["Години"].sum()
-# print("Загальна кількість годин за кожним проектом:")
-# print(project_hours)
-# print("-" * 50)
-#
-# employee_name = employee_hours.idxmax()
-# employee_h = employee_hours.max()
-# print(f"Співробітник, який витратив найбільше годин: {employee_name}")
-# print(f"Кількість годин: {employee_h}")
+    for guidance in guidance_values:
+        generate_and_time(
+            pipe, PROMPTS["guidance_ukr"], fixed_steps, guidance, fixed_width, fixed_height,
+            f"T2_G{guidance:.1f}_ukr.png"
+        )
+        generate_and_time(
+            pipe, PROMPTS["guidance_eng"], fixed_steps, guidance, fixed_width, fixed_height,
+            f"T2_G{guidance:.1f}_eng.png"
+        )
+        print(f"Guidance: {guidance:.1f} | Зображення збережено")
+
+    size_values = [(256, 256), (512, 512), (768, 768)]
+
+    print("\n--- Вплив розміру ---")
+
+    for w, h in size_values:
+        time_ukr, _ = generate_and_time(
+            pipe, PROMPTS["size_ukr"], fixed_steps, fixed_guidance, w, h, f"T3_Size{w}_ukr.png"
+        )
+        time_eng, _ = generate_and_time(
+            pipe, PROMPTS["size_eng"], fixed_steps, fixed_guidance, w, h, f"T3_Size{w}_eng.png"
+        )
+        print(f"Розмір: {w}x{h} | Час (УКР): {time_ukr:.2f}с | Час (АНГЛ): {time_eng:.2f}с")
+
